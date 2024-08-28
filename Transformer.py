@@ -2,7 +2,8 @@ import streamlit as st
 import openai
 
 # Hardcoded OpenAI API Key (replace with your actual key)
-API_KEY = "your_openai_api_key_here"  # <-- Replace this with your actual OpenAI API key
+API_KEY = "ssk-proj-hZ4XwE7I3mnK4HNN1Km2UJ6BPB1g7jn4lhj8An87GEVqnKFdl2A9od-M90T3BlbkFJUrTD7PsDWS9DKgyXJkZWCyWAhCFZBtILbD5nmnPEJck3OrrIpT-ga3dqYA
+"  # <-- Replace this with your actual OpenAI API key
 
 # Function to simulate agents' work
 def agent_interactions(problem, barrier, affected, wish):
@@ -17,7 +18,7 @@ def agent_interactions(problem, barrier, affected, wish):
     Please provide a detailed problem analysis, including relevant studies and data showing the problem's size and significance.
     """
     problem_analysis_response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # <-- Ensure this line is complete and properly enclosed
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are an assistant that helps with problem analysis and innovation generation."},
             {"role": "user", "content": problem_analysis_prompt}
@@ -34,7 +35,7 @@ def agent_interactions(problem, barrier, affected, wish):
     5. Describe an ideal scenario based on the following wish: {wish}.
     """
     value_proposition_response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # <-- Ensure this line is complete and properly enclosed
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are an assistant that helps with value proposition analysis."},
             {"role": "user", "content": value_proposition_prompt}
@@ -49,7 +50,7 @@ st.title("Trend to Opportunity Transformer")
 st.write("This AI helps you generate innovative ideas from urgent problems and unmet needs.")
 
 st.header("Agent 1: Define the Unmet Need or Problem")
-problem = st.text_area("Describe a problem that justifies developing a solution or innovation.")
+problem = st.text_area("Describe a problem that justifies developing a solution or innovation.")  # Ensure the string is properly enclosed in quotes
 barrier = st.text_area("What is stopping us from solving or overcoming the problem?")
 affected = st.text_area("Who is mostly affected by this problem?")
 
