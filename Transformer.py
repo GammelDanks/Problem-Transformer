@@ -1,22 +1,21 @@
 import streamlit as st
 import openai
-import os
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Streamlit App
+st.title("Trend to Opportunity Transformer")
 
-# Retrieve the OpenAI API Key from the environment variable
-API_KEY = os.getenv("OPENAI_API_KEY")
+st.write("This AI helps you generate innovative ideas from urgent problems and unmet needs.")
 
-# Check if the API key is available, else raise an error
-if not API_KEY:
-    st.error("No OpenAI API key found. Please set the 'OPENAI_API_KEY' environment variable.")
+# Input for OpenAI API Key
+api_key = st.text_input("Enter your OpenAI API Key:", type="password")
+
+if not api_key:
+    st.warning("Please enter your OpenAI API key to proceed.")
     st.stop()
 
 # Function to simulate agents' work
-def agent_interactions(problem, barrier, affected, wish):
-    openai.api_key = API_KEY  # Use the API key from the environment variable
+def agent_interactions(api_key, problem, barrier, affected, wish):
+    openai.api_key = api_key  # Use the API key provided by the user
 
     # Agent 2: Problem Analysis
     problem_analysis_prompt = f"""
@@ -53,11 +52,6 @@ def agent_interactions(problem, barrier, affected, wish):
 
     return problem_analysis_response, value_proposition_response
 
-# Streamlit App
-st.title("Trend to Opportunity Transformer")
-
-st.write("This AI helps you generate innovative ideas from urgent problems and unmet needs.")
-
 st.header("Agent 1: Define the Unmet Need or Problem")
 problem = st.text_area("Describe a problem that justifies developing a solution or innovation.")
 barrier = st.text_area("What is stopping us from solving or overcoming the problem?")
@@ -70,7 +64,7 @@ wish = st.text_area("If you could wish for what you want, what would be an ideal
 if st.button("Generate Analysis and Ideas"):
     if problem and barrier and affected and wish:
         try:
-            problem_analysis, value_proposition = agent_interactions(problem, barrier, affected, wish)
+            problem_analysis, value_proposition = agent_interactions(api_key, problem, barrier, affected, wish)
             
             st.subheader("Agent 2: Problem Analysis")
             st.write(problem_analysis)
