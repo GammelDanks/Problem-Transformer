@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 
 # Hardcoded OpenAI API Key (replace with your actual key)
-API_KEY = "ssk-proj-hZ4XwE7I3mnK4HNN1Km2UJ6BPB1g7jn4lhj8An87GEVqnKFdl2A9od-M90T3BlbkFJUrTD7PsDWS9DKgyXJkZWCyWAhCFZBtILbD5nmnPEJck3OrrIpT-ga3dqYA"
+API_KEY = "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"
 
 # Function to simulate agents' work
 def agent_interactions(problem, barrier, affected, wish):
