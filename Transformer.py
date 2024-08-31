@@ -1,12 +1,22 @@
 import streamlit as st
 import openai
+import os
+from dotenv import load_dotenv
 
-# Hardcoded OpenAI API Key (replace with your actual key)
-API_KEY = "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"
+# Load environment variables from the .env file
+load_dotenv()
+
+# Retrieve the OpenAI API Key from the environment variable
+API_KEY = os.getenv("OPENAI_API_KEY")
+
+# Check if the API key is available, else raise an error
+if not API_KEY:
+    st.error("No OpenAI API key found. Please set the 'OPENAI_API_KEY' environment variable.")
+    st.stop()
 
 # Function to simulate agents' work
 def agent_interactions(problem, barrier, affected, wish):
-    openai.api_key = API_KEY  # Use the hardcoded API key
+    openai.api_key = API_KEY  # Use the API key from the environment variable
 
     # Agent 2: Problem Analysis
     problem_analysis_prompt = f"""
