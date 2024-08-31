@@ -3,7 +3,7 @@ import openai
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from the .env file
+# Load environment variables from .env file
 load_dotenv()
 
 # Retrieve the OpenAI API Key from the environment variable
@@ -59,7 +59,7 @@ st.title("Trend to Opportunity Transformer")
 st.write("This AI helps you generate innovative ideas from urgent problems and unmet needs.")
 
 st.header("Agent 1: Define the Unmet Need or Problem")
-problem = st.text_area("Describe a problem that justifies developing a solution or innovation.")  # Ensure the string is properly enclosed in quotes
+problem = st.text_area("Describe a problem that justifies developing a solution or innovation.")
 barrier = st.text_area("What is stopping us from solving or overcoming the problem?")
 affected = st.text_area("Who is mostly affected by this problem?")
 
