@@ -3,8 +3,13 @@ import openai
 import matplotlib.pyplot as plt
 import time
 
-# For Streamlit Cloud, use st.secrets
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# Retrieve the API key from Streamlit secrets
+openai_api_key = st.secrets.get("OPENAI_API_KEY")
+
+# Check if the API key was retrieved successfully
+if openai_api_key is None:
+    st.error("API key not found in secrets. Please set the API key in the Streamlit secrets management.")
+    st.stop()
 
 # Set the API key for OpenAI
 openai.api_key = openai_api_key
