@@ -3,7 +3,15 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import spacy
-from collections import Counter
+import spacy
+from spacy.cli import download
+
+# Ensure the spacy model is downloaded
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    download("en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 import openai
 
 # Load the spaCy model for English
