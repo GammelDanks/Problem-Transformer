@@ -3,15 +3,19 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import spacy
+# Handle spaCy model loading
 import spacy
 from spacy.cli import download
 
-# Ensure the spacy model is downloaded
+model_name = "en_core_web_sm"
+
 try:
-    nlp = spacy.load("en_core_web_sm")
+    nlp = spacy.load(model_name)
 except OSError:
-    download("en_core_web_sm")
-    nlp = spacy.load("en_core_web_sm")
+    st.warning(f"Model '{model_name}' not found. Downloading now...")
+    download(model_name)
+    nlp = spacy.load(model_name)
+    
 import openai
 
 # Load the spaCy model for English
