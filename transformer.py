@@ -3,15 +3,10 @@ import openai
 import matplotlib.pyplot as plt
 import time
 
-# Retrieve the API key from Streamlit secrets
-openai_api_key = st.secrets.get("OPENAI_API_KEY")
+# Retrieve the OpenAI API Key from Streamlit secrets
+openai_api_key = st.secrets["general"]["OPENAI_API_KEY"]
 
-# Check if the API key was retrieved successfully
-if openai_api_key is None:
-    st.error("API key not found in secrets. Please set the API key in the Streamlit secrets management.")
-    st.stop()
-
-# Set the API key for OpenAI
+# Set the OpenAI API key
 openai.api_key = openai_api_key
 
 # Function to simulate agents' work with rate limit handling and a delay between API requests
