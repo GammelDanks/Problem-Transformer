@@ -124,7 +124,7 @@ def plot_opportunity_matrix(potential_score, challenge_score):
     st.pyplot(fig)
 
 # Streamlit App
-st.title("Trend to Opportunity Transformer")
+st.title("Problem Analyzer")
 
 st.write("This AI helps you generate innovative ideas from urgent problems and unmet needs.")
 
