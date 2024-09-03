@@ -25,7 +25,7 @@ def generate_innovative_solutions(problem_description, target_audience):
     """
 
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4-turbo",
         messages=[
             {"role": "system", "content": "You are a leading expert in innovation and technology, focusing on developing new products, software, services, and processes."},
             {"role": "user", "content": prompt}
