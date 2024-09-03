@@ -16,7 +16,7 @@ def get_competitors(solution_description):
     - If possible, provide a few links to articles, blog posts, or resources where these competitors are discussed or reviewed.
     """
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4-turbo",
         messages=[
             {"role": "system", "content": "You are a market analyst."},
             {"role": "user", "content": prompt}
