@@ -18,7 +18,7 @@ def agent_interactions(problem, barrier, affected, wish):
         for i in range(retries):
             try:
                 response = openai.ChatCompletion.create(
-                    model="gpt-4-turbo",
+                    model="gpt-3.5-turbo",
                     messages=[
                         {"role": "system", "content": system_message},
                         {"role": "user", "content": prompt}
