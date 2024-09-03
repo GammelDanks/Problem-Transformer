@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import time
 
 # Retrieve the OpenAI API Key from Streamlit secrets
-openai.api_key = st.secrets["openai"]["openai_api_key"]
+openai_api_key = st.secrets["general"]["OPENAI_API_KEY"]
 
 # Set the OpenAI API key
 openai.api_key = openai_api_key
