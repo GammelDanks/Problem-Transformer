@@ -116,4 +116,5 @@ if st.button("🔍 Generate Analysis and Ideas"):
                 for result in search_results:
                     if isinstance(result, str):  # Error Handling
                         st.write(result)
-        
+        except Exception as e:
+    st.error(f"❌ An error occurred while retrieving web search results: {e}")
