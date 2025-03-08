@@ -1,6 +1,7 @@
 import openai
 import requests
 import streamlit as st
+import datetime  # Ensure datetime is imported
 
 # 🔹 Add your Google Search API credentials here
 GOOGLE_API_KEY = "AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE"  # 🔴 Replace with your actual Google API Key
@@ -11,7 +12,8 @@ def fetch_from_google(problem_description, target_audience):
     """Fetches more specific search results from Google Custom Search API using an intelligent query."""
     
     # Construct a more relevant search query
-    refined_query = f"{problem_description} AND {target_audience} -site:pinterest.com -site:quora.com after:{(datetime.datetime.now().year - 3)}"
+    current_year = datetime.datetime.now().year
+    refined_query = f"{problem_description} {target_audience} -site:pinterest.com -site:quora.com after:{current_year - 3}"
     
     url = f"https://www.googleapis.com/customsearch/v1?q={refined_query}&key={GOOGLE_API_KEY}&cx={SEARCH_ENGINE_ID}"
     
@@ -25,21 +27,22 @@ def fetch_from_google(problem_description, target_audience):
             link = item.get("link", "#")
             snippet = item.get("snippet", "No description available")
             
-            # Append result if it's within the last 3 years
+            # Check for publication date and filter old articles
+            article_year = None
             if "pagemap" in item and "metatags" in item["pagemap"]:
                 meta_tags = item["pagemap"]["metatags"][0]
                 if "article:published_time" in meta_tags:
                     article_year = int(meta_tags["article:published_time"][:4])
-                    if article_year < datetime.datetime.now().year - 3:
-                        continue  # Skip old articles
-
+            
+            if article_year and article_year < current_year - 3:
+                continue  # Skip articles older than 3 years
+            
             results.append(f"🔗 [{title}]({link}) - {snippet}")
         
         return "\n\n".join(results) if results else "No highly relevant search results found."
     
     except Exception as e:
         return f"Error fetching from Google: {e}"
-
 
 # 🔹 Streamlit App UI
 st.title("Advanced Innovation Generator")
@@ -131,7 +134,7 @@ if st.button("Generate Solutions"):
             st.write(problem_analysis)
 
             with st.spinner("Retrieving real-world solutions..."):
-                google_search_results = fetch_from_google(problem_description)
+                google_search_results = fetch_from_google(problem_description, target_audience)
 
             st.subheader("Existing Solutions & Research")
             st.write("### 🔍 Web Search Results (Google API)")
