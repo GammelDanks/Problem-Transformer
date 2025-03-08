@@ -135,11 +135,11 @@ def analyze_problem(problem_description, target_audience):
 # 🔹 Step 2: Generate new technology-based ideas
 def generate_new_ideas(problem_description, target_audience, existing_solutions):
     prompt = f"""
-    Generate five **unique, technology-based** solutions to the problem. Each idea should include:
+    Generate five **unique, technology-based** solutions to the problem. The ideas should be both original and feasible and make use of the newest technologies. Do not focus on AI-related solutions only. Do not only focus on digital platforms, or apps. Each idea should include:
     - A product/service name
     - A detailed description of how it works
     - The key technology behind it
-    - Possible challenges and how to overcome them
+    - Possible challenges of the solution (technology, capital intensity, regulation and laws, the market accpetance, compettion) and how to overcome them
     - The potential market impact
     
     Problem: {problem_description}
