@@ -3,8 +3,8 @@ import requests
 import streamlit as st
 
 # 🔹 Add your Google Search API credentials here
-GOOGLE_API_KEY = AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE
-SEARCH_ENGINE_ID = 94d30f152c43a48a7
+GOOGLE_API_KEY = "AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE"  # 🔴 Replace with your actual Google API Key
+SEARCH_ENGINE_ID = "94d30f152c43a48a7"  # 🔴 Replace with your Custom Search Engine ID
 
 # 🔹 Function to fetch search results from Google Custom Search API
 def fetch_from_google(query):
