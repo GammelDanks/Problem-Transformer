@@ -9,17 +9,20 @@ SEARCH_ENGINE_ID = "94d30f152c43a48a7"  # 🔴 Replace with your Custom Search E
 
 import datetime
 
-# 🔹 Function to fetch high-quality, study-based search results
+import datetime
+
+# 🔹 Function to fetch high-quality, study-based search results with a balanced approach
 def fetch_from_google(problem_description, target_audience):
-    """Fetches more specific search results from Google Custom Search API with a focus on studies and reports."""
+    """Fetches more specific search results from Google Custom Search API, balancing relevance and flexibility."""
     
     # Get the current year
     current_year = datetime.datetime.now().year
 
-    # Construct a more relevant search query emphasizing data and studies
-    refined_query = (f'"{problem_description}" "{target_audience}" '
-                     f'("report" OR "study" OR "research" OR "data analysis" OR "white paper") '
-                     f'site:gov OR site:edu OR site:nature.com OR site:researchgate.net OR site:worldbank.org '
+    # Construct a more balanced search query
+    refined_query = (f'{problem_description} {target_audience} '
+                     f'("report" OR "study" OR "data-driven" OR "research insights" OR "market analysis") '
+                     f'(site:gov OR site:edu OR site:researchgate.net OR site:worldbank.org '
+                     f'OR site:forbes.com OR site:hbr.org OR site:sciencedirect.com OR site:bbc.com) '
                      f'-site:pinterest.com -site:quora.com -site:reddit.com after:{current_year - 3}')
     
     url = f"https://www.googleapis.com/customsearch/v1?q={refined_query}&key={GOOGLE_API_KEY}&cx={SEARCH_ENGINE_ID}"
@@ -34,7 +37,7 @@ def fetch_from_google(problem_description, target_audience):
             link = item.get("link", "#")
             snippet = item.get("snippet", "No description available")
             
-            # Check for publication date and filter old articles
+            # Check for publication date and filter old articles if available
             article_year = None
             if "pagemap" in item and "metatags" in item["pagemap"]:
                 meta_tags = item["pagemap"]["metatags"][0]
@@ -46,7 +49,7 @@ def fetch_from_google(problem_description, target_audience):
             
             results.append(f"🔗 [{title}]({link}) - {snippet}")
         
-        return "\n\n".join(results) if results else "No highly relevant study-based search results found."
+        return "\n\n".join(results) if results else "No relevant search results found. Try adjusting your input."
     
     except Exception as e:
         return f"Error fetching from Google: {e}"
