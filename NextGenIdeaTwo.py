@@ -118,8 +118,7 @@ def analyze_problem(problem_description, target_audience):
     prompt = f"""
     You are an expert problem analyst. Given the following problem and audience, provide:
     1. A deeper breakdown of the root causes of the problem.
-    2. A summary of similar problems in different industries.
-    3. Key obstacles to solving this problem.
+    2. Key obstacles to solving this problem. This analyis should be related to the root causes and the internet sources that you found via Google search before.
     
     Problem: {problem_description}
     Target Audience: {target_audience}
@@ -159,8 +158,8 @@ def generate_new_ideas(problem_description, target_audience, existing_solutions)
 # 🔹 Step 3: Evaluate and refine the best idea
 def refine_best_idea(ideas):
     prompt = f"""
-    Based on the following five solutions, select the one with the highest innovation, feasibility, and impact.
-    Provide a more refined version with additional technical details and a potential roadmap for development.
+    Based on the following five solutions, select the one with the highest innovation, feasibility, and impact.Explain in one or two sentences why this is the most promising idea. Focus on feasibility which includes (1) the high newness and uniqueness (2) the acceptable technical complexity and risk and development costs,
+ (3) the high effectiveness to solve the problem. Provide a more refined version with some additional technical details.
     
     Solutions: {ideas}
     """
