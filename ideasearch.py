@@ -1,23 +1,32 @@
-import streamlit as st
 import openai
 import requests
-import time
+import streamlit as st
 
-# Retrieve the API keys from Streamlit secrets
-openai_api_key = st.secrets.get("OPENAI_API_KEY")
-google_api_key = st.secrets.get("GOOGLE_API_KEY")
-google_cse_id = st.secrets.get("GOOGLE_CSE_ID")
+# 🔹 Add your Google Search API credentials here
+GOOGLE_API_KEY = "AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE"  # 🔴 Replace with your actual Google API Key
+SEARCH_ENGINE_ID = "94d30f152c43a48a7"  # 🔴 Replace with your Custom Search Engine ID
 
-# Check if the API keys were retrieved successfully
-if not openai_api_key:
-    st.error("🚨 OpenAI API key not found! Set it in Streamlit secrets.")
-    st.stop()
-if not google_api_key:
-    st.error("🚨 Google API key not found! Set it in Streamlit secrets.")
-    st.stop()
-if not google_cse_id:
-    st.error("🚨 Google CSE ID not found! Set it in Streamlit secrets.")
-    st.stop()
+# 🔹 Function to fetch search results from Google Custom Search API
+def fetch_from_google(query):
+    """Fetches search results from Google Custom Search API."""
+    
+    url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={SEARCH_ENGINE_ID}"
+    
+    try:
+        response = requests.get(url)
+        data = response.json()
+        
+        results = []
+        for item in data.get("items", [])[:5]:  # Get top 5 results
+            title = item.get("title", "No Title")
+            link = item.get("link", "#")
+            snippet = item.get("snippet", "No description available")
+            results.append(f"🔗 [{title}]({link}) - {snippet}")
+        
+        return "\n\n".join(results) if results else "No relevant search results found."
+    
+    except Exception as e:
+        return f"Error fetching from Google: {e}"
 
 # Set the OpenAI API key
 openai.api_key = openai_api_key
