@@ -2,9 +2,6 @@ import openai
 import requests
 import streamlit as st
 
-import streamlit as st
-import openai
-
 # Set the API key for OpenAI
 openai.api_key = openai_api_key  # This properly sets the API key
 
