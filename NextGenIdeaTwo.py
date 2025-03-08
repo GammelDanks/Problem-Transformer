@@ -4,8 +4,8 @@ import streamlit as st
 import datetime
 
 # 🔹 Add your Google Search API credentials here
-GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY"  # 🔴 Replace with your actual Google API Key
-SEARCH_ENGINE_ID = "YOUR_SEARCH_ENGINE_ID"  # 🔴 Replace with your Custom Search Engine ID
+GOOGLE_API_KEY = "AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE"  # 🔴 Replace with your actual Google API Key
+SEARCH_ENGINE_ID = "94d30f152c43a48a7"  # 🔴 Replace with your Custom Search Engine ID
 
 # 🔹 Trusted sources for targeted searches
 TRUSTED_SOURCES = [
