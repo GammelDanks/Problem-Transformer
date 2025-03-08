@@ -50,7 +50,7 @@ def fetch_from_google(query, num_results=10, trusted_only=True):
             snippet = item.get("snippet", "No description available")
             results.append(f"🔗 [{title}]({link}) - {snippet}")
         
-        return results if results else None
+        return results if results else []
 
     except Exception as e:
         return [f"Error fetching from Google: {e}"]
@@ -127,7 +127,7 @@ if st.button("Generate Solutions"):
 
             st.subheader("Existing Solutions & Research")
             st.write("### 🔍 Web Search Results (Google API)")
-            st.write("\n\n".join(google_search_results))
+            st.write("\n\n".join(google_search_results) if google_search_results else "No relevant search results found.")
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
