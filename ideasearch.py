@@ -1,120 +1,141 @@
-import streamlit as st
 import openai
 import requests
-import time
+import streamlit as st
 
-# Retrieve the API keys from Streamlit secrets
-openai_api_key = st.secrets.get("OPENAI_API_KEY")
-google_api_key = st.secrets.get("GOOGLE_API_KEY")
-google_cse_id = st.secrets.get("GOOGLE_CSE_ID")
+# 🔹 Add your Google Search API credentials here
+GOOGLE_API_KEY = "AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE"  # 🔴 Replace with your actual Google API Key
+SEARCH_ENGINE_ID = "94d30f152c43a48a7"  # 🔴 Replace with your Custom Search Engine ID
 
-# Debugging: Check if secrets are loaded correctly
-if not openai_api_key:
-    st.error("🚨 OpenAI API key not found! Set it in Streamlit secrets.")
-    st.stop()
-if not google_api_key:
-    st.error("🚨 Google API key not found! Set it in Streamlit secrets.")
-    st.stop()
-if not google_cse_id:
-    st.error("🚨 Google CSE ID not found! Set it in Streamlit secrets.")
-    st.stop()
+# 🔹 Function to fetch search results from Google Custom Search API
+def fetch_from_google(query):
+    """Fetches search results from Google Custom Search API."""
+    
+    url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={SEARCH_ENGINE_ID}"
+    
+    try:
+        response = requests.get(url)
+        data = response.json()
+        
+        results = []
+        for item in data.get("items", [])[:5]:  # Get top 5 results
+            title = item.get("title", "No Title")
+            link = item.get("link", "#")
+            snippet = item.get("snippet", "No description available")
+            results.append(f"🔗 [{title}]({link}) - {snippet}")
+        
+        return "\n\n".join(results) if results else "No relevant search results found."
+    
+    except Exception as e:
+        return f"Error fetching from Google: {e}"
 
-# Set the OpenAI API key
+# 🔹 Streamlit App UI
+st.title("Advanced Innovation Generator")
+st.write("Generate deep, tech-driven, and broad solutions using AI-powered frameworks.")
+
+# Retrieve the OpenAI API Key from Streamlit secrets
+openai_api_key = st.secrets["general"]["OPENAI_API_KEY"]
 openai.api_key = openai_api_key
 
-# Function to make API calls with retry handling
-def make_api_call(prompt, system_message):
-    retries = 3
-    delay = 5
-    for i in range(retries):
+# 🔹 Step 1: Analyze the problem
+def analyze_problem(problem_description, target_audience):
+    prompt = f"""
+    You are an expert problem analyst. Given the following problem and audience, provide:
+    1. A deeper breakdown of the root causes of the problem.
+    2. A summary of similar problems in different industries.
+    3. Key obstacles to solving this problem.
+    
+    Problem: {problem_description}
+    Target Audience: {target_audience}
+    """
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4-turbo",
+        messages=[{"role": "system", "content": "You are a problem analysis expert."},
+                  {"role": "user", "content": prompt}]
+    )
+
+    return response.choices[0].message['content']
+
+# 🔹 Step 2: Generate new technology-based ideas
+def generate_new_ideas(problem_description, target_audience, existing_solutions):
+    prompt = f"""
+    Generate five **unique, technology-based** solutions to the problem. Each idea should include:
+    - A product/service name
+    - A detailed description of how it works
+    - The key technology behind it
+    - Possible challenges and how to overcome them
+    - The potential market impact
+    
+    Problem: {problem_description}
+    Target Audience: {target_audience}
+    Existing Solutions: {existing_solutions}
+    """
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4-turbo",
+        messages=[{"role": "system", "content": "You are an AI innovation strategist creating deep and technical solutions."},
+                  {"role": "user", "content": prompt}]
+    )
+
+    return response.choices[0].message['content']
+
+# 🔹 Step 3: Evaluate and refine the best idea
+def refine_best_idea(ideas):
+    prompt = f"""
+    Based on the following five solutions, select the one with the highest innovation, feasibility, and impact.
+    Provide a more refined version with additional technical details and a potential roadmap for development.
+    
+    Solutions: {ideas}
+    """
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4-turbo",
+        messages=[{"role": "system", "content": "You are a business and tech expert refining innovation strategies."},
+                  {"role": "user", "content": prompt}]
+    )
+
+    return response.choices[0].message['content']
+
+# 🔹 Streamlit UI Inputs
+problem_description = st.text_area(
+    "Describe the problem:",
+    placeholder="What is the problem?",
+    help="Describe the problem you want to solve."
+)
+
+target_audience = st.text_area(
+    "Who has the problem?",
+    placeholder="Who is affected by this problem?",
+    help="Describe the group or individuals who are affected by the problem."
+)
+
+# 🔹 Button to generate solutions
+if st.button("Generate Solutions"):
+    if problem_description and target_audience:
         try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-            return response.choices[0].message['content'].strip()
-        except openai.error.RateLimitError:
-            if i < retries - 1:
-                time.sleep(delay)
-                delay *= 2  # Exponential backoff
-            else:
-                return "⚠️ Rate limit exceeded. Please try again later."
+            with st.spinner("Analyzing problem..."):
+                problem_analysis = analyze_problem(problem_description, target_audience)
+            st.subheader("Problem Analysis")
+            st.write(problem_analysis)
+
+            with st.spinner("Retrieving real-world solutions..."):
+                google_search_results = fetch_from_google(problem_description)
+
+            st.subheader("Existing Solutions & Research")
+            st.write("### 🔍 Web Search Results (Google API)")
+            st.write(google_search_results)
+
+            with st.spinner("Generating new innovative ideas..."):
+                new_ideas = generate_new_ideas(problem_description, target_audience, google_search_results)
+            st.subheader("Innovative Solutions")
+            st.write(new_ideas)
+
+            with st.spinner("Refining best idea..."):
+                best_idea = refine_best_idea(new_ideas)
+            st.subheader("Refined Best Idea")
+            st.write(best_idea)
+
         except Exception as e:
-            return f"❌ An error occurred: {e}"
-
-# Function to perform Google Custom Search
-def google_search(query, num_results=5):
-    search_url = "https://www.googleapis.com/customsearch/v1"
-    params = {
-        "q": query,
-        "key": google_api_key,
-        "cx": google_cse_id,
-        "num": num_results
-    }
-
-    try:
-        response = requests.get(search_url, params=params)
-        if response.status_code == 200:
-            return response.json().get("items", [])
-        else:
-            return []
-    except Exception as e:
-        return [f"❌ Google Search Error: {e}"]
-
-# Streamlit App UI
-st.title("💡 Idea Search Transformer")
-
-st.write("🚀 AI-powered insights for business & market opportunities.")
-
-# User Input Fields
-problem = st.text_area("📌 Describe the problem:", placeholder="Enter a brief problem description.")
-barrier = st.text_area("🚧 What barriers exist?", placeholder="Describe the challenges.")
-affected = st.text_area("👥 Who is affected?", placeholder="List the affected parties.")
-wish = st.text_area("🎯 Ideal situation?", placeholder="Describe the desired outcome.")
-
-# Generate Analysis and Web Search
-if st.button("🔍 Generate Analysis and Ideas"):
-    if problem and barrier and affected and wish:
-        try:
-            # AI-Generated Insights
-            st.subheader("📌 Problem Summary & Insights")
-            problem_summary = make_api_call(
-                f"Summarize this problem and provide insights:\nProblem: {problem}\nBarriers: {barrier}\nAffected: {affected}\nIdeal Outcome: {wish}",
-                "You are an expert in problem analysis."
-            )
-            st.write(problem_summary)
-
-            st.subheader("📊 Data-Driven Evidence")
-            empirical_evidence = make_api_call(
-                f"Provide data and research on the impact of this problem:\nProblem: {problem}\nBarriers: {barrier}\nAffected: {affected}",
-                "You are an expert researcher who provides empirical evidence."
-            )
-            st.write(empirical_evidence)
-
-            st.subheader("🌍 Market Potential Analysis")
-            market_potential = make_api_call(
-                f"Analyze the market potential for this problem:\nProblem: {problem}\nBarriers: {barrier}\nAffected: {affected}\nIdeal Outcome: {wish}",
-                "You are an expert in business analysis and market potential estimation."
-            )
-            st.write(market_potential)
-
-            st.subheader("🚧 Major Challenges to Solve")
-            challenges_analysis = make_api_call(
-                f"Identify key challenges in solving this problem:\nProblem: {problem}\nImmediate Effects: {barrier}\nAffected: {affected}",
-                "You are an expert in business and technical challenges."
-            )
-            st.write(challenges_analysis)
-
-            # Web Search Integration
-            st.subheader("🔍 Web Search Results")
-            search_results = google_search(problem)
-
-            if search_results:
-                for result in search_results:
-                    if isinstance(result, str):  # Error Handling
-                        st.write(result)
-        except Exception as e:
-    st.error(f"❌ An error occurred while retrieving web search results: {e}")
+            st.error(f"An error occurred: {e}")
+    else:
+        st.warning("Please enter both the problem description and target audience to generate solutions.")
