@@ -1,17 +1,9 @@
-import openai
 import streamlit as st
-
-# Streamlit App UI
-st.title("Innovative Solution Generator")
-
-st.write("This tool helps you generate innovative, technology-based solutions for your problem.")
-
-# Retrieve the OpenAI API Key from Streamlit secrets
-openai_api_key = st.secrets["general"]["OPENAI_API_KEY"]
+import openai
+import time
 
 # Set the OpenAI API key
-openai.api_key = openai_api_key
-
+openai.api_key = st.secrets["openai"]["openai_api_key"]
 
 # Function to generate innovative solutions
 def generate_innovative_solutions(problem_description, target_audience):
