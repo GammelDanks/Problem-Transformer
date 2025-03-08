@@ -1,112 +1,73 @@
 import openai
 import requests
 import streamlit as st
-import datetime  # Ensure datetime is imported
-
-# 🔹 Add your Google Search API credentials here
-GOOGLE_API_KEY = "AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE"  # 🔴 Replace with your actual Google API Key
-SEARCH_ENGINE_ID = "94d30f152c43a48a7"  # 🔴 Replace with your Custom Search Engine ID
-
 import datetime
 
-# 🔹 Function to fetch high-quality, industry-specific search results with a fallback mechanism
-def fetch_from_google(problem_description, target_audience):
-    """Fetches search results from Google Custom Search API, prioritizing authoritative sources but allowing a fallback search."""
+# 🔹 Add your Google Search API credentials here
+GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY"  # 🔴 Replace with your actual Google API Key
+SEARCH_ENGINE_ID = "YOUR_SEARCH_ENGINE_ID"  # 🔴 Replace with your Custom Search Engine ID
+
+# 🔹 Trusted sources for targeted searches
+TRUSTED_SOURCES = [
+    "reuters.com", "spglobal.com", "industryweek.com", "manufacturing.net",
+    "cleantechnica.com", "iea.org", "materialstoday.com", "azom.com",
+    "medtechdive.com", "healthcareitnews.com", "automotivenews.com",
+    "motortrend.com", "caranddriver.com", "autoweek.com", "topgear.com",
+    "themanufacturer.com", "plantengineering.com", "modernmachineshop.com",
+    "greentechmedia.com", "canarymedia.com", "energystoragejournal.com",
+    "materialsworld.com", "advancedmaterials.com", "jmateralscience.com",
+    "massdevice.com", "fiercebiotech.com", "medicaldesignandoutsourcing.com",
+    "techcrunch.com", "wired.com", "theverge.com", "cnet.com", "gizmodo.com",
+    "biopharmadive.com", "constructiondive.com", "utilitydive.com",
+    "transportdive.com", "retaildive.com", "treehugger.com", "ecowatch.com",
+    "greenbiz.com", "insideclimatenews.org", "climatecentral.org",
+    "bloomberg.com", "forbes.com", "fortune.com", "wsj.com",
+    "frost.com", "gartner.com", "mckinsey.com", "deloitte.com",
+    "strategyand.pwc.com", "iea.org", "who.int"
+]
+
+# 🔹 Function to fetch search results from Google Custom Search API
+def fetch_from_google(query, num_results=10, trusted_only=True):
+    """Fetches search results from Google Custom Search API. If trusted_only=True, prioritizes authoritative sources."""
     
-    # Get the current year
     current_year = datetime.datetime.now().year
-
-    # List of high-quality, industry-specific sources
-    trusted_sources = [
-        "reuters.com", "spglobal.com", "industryweek.com", "manufacturing.net",
-        "cleantechnica.com", "iea.org", "materialstoday.com", "azom.com",
-        "medtechdive.com", "healthcareitnews.com", "automotivenews.com",
-        "motortrend.com", "caranddriver.com", "autoweek.com", "topgear.com",
-        "themanufacturer.com", "plantengineering.com", "modernmachineshop.com",
-        "greentechmedia.com", "canarymedia.com", "energystoragejournal.com",
-        "materialsworld.com", "advancedmaterials.com", "jmateralscience.com",
-        "massdevice.com", "fiercebiotech.com", "medicaldesignandoutsourcing.com",
-        "techcrunch.com", "wired.com", "theverge.com", "cnet.com", "gizmodo.com",
-        "biopharmadive.com", "constructiondive.com", "utilitydive.com",
-        "transportdive.com", "retaildive.com", "treehugger.com", "ecowatch.com",
-        "greenbiz.com", "insideclimatenews.org", "climatecentral.org",
-        "bloomberg.com", "forbes.com", "fortune.com", "wsj.com",
-        "frost.com", "gartner.com", "mckinsey.com", "deloitte.com",
-        "strategyand.pwc.com", "iea.org", "who.int"
-    ]
-
-    # Construct the search query prioritizing authoritative sources
     trusted_query = (
-        f'{problem_description} {target_audience} '
-        f'("report" OR "study" OR "data analysis" OR "white paper") '
-        f'({" OR ".join([f"site:{site}" for site in trusted_sources])}) '
+        f'{query} ("report" OR "study" OR "data analysis" OR "white paper") '
+        f'({" OR ".join([f"site:{site}" for site in TRUSTED_SOURCES])}) '
         f'-site:pinterest.com -site:quora.com -site:reddit.com after:{current_year - 3}'
     )
-    
-    url_trusted = f"https://www.googleapis.com/customsearch/v1?q={trusted_query}&key={GOOGLE_API_KEY}&cx={SEARCH_ENGINE_ID}"
+
+    url = f"https://www.googleapis.com/customsearch/v1?q={trusted_query if trusted_only else query}&key={GOOGLE_API_KEY}&cx={SEARCH_ENGINE_ID}&num={num_results}"
 
     try:
-        # First attempt: Search within trusted sources
-        response = requests.get(url_trusted)
+        response = requests.get(url)
         data = response.json()
         
         results = []
-        for item in data.get("items", [])[:5]:  # Get top 5 results
+        for item in data.get("items", []):  # Get up to 'num_results' results
             title = item.get("title", "No Title")
             link = item.get("link", "#")
             snippet = item.get("snippet", "No description available")
-
-            # Check for publication date and filter old articles if available
-            article_year = None
-            if "pagemap" in item and "metatags" in item["pagemap"]:
-                meta_tags = item["pagemap"]["metatags"][0]
-                if "article:published_time" in meta_tags:
-                    article_year = int(meta_tags["article:published_time"][:4])
-
-            if article_year and article_year < current_year - 3:
-                continue  # Skip articles older than 3 years
-            
             results.append(f"🔗 [{title}]({link}) - {snippet}")
-
-        # If results are found from trusted sources, return them
-        if results:
-            return "\n\n".join(results)
-
-        # If no relevant results, perform a broader search
-        fallback_query = (
-            f'{problem_description} {target_audience} '
-            f'("report" OR "study" OR "data analysis" OR "white paper") '
-            f'-site:pinterest.com -site:quora.com -site:reddit.com after:{current_year - 3}'
-        )
-        url_fallback = f"https://www.googleapis.com/customsearch/v1?q={fallback_query}&key={GOOGLE_API_KEY}&cx={SEARCH_ENGINE_ID}"
-
-        response = requests.get(url_fallback)
-        data = response.json()
         
-        results = []
-        for item in data.get("items", [])[:5]:  # Get top 5 results
-            title = item.get("title", "No Title")
-            link = item.get("link", "#")
-            snippet = item.get("snippet", "No description available")
-
-            # Check for publication date and filter old articles if available
-            article_year = None
-            if "pagemap" in item and "metatags" in item["pagemap"]:
-                meta_tags = item["pagemap"]["metatags"][0]
-                if "article:published_time" in meta_tags:
-                    article_year = int(meta_tags["article:published_time"][:4])
-
-            if article_year and article_year < current_year - 3:
-                continue  # Skip articles older than 3 years
-            
-            results.append(f"🔗 [{title}]({link}) - {snippet}")
-
-        return "\n\n".join(results) if results else "No relevant search results found. Try adjusting your input."
+        return results if results else None
 
     except Exception as e:
-        return f"Error fetching from Google: {e}"
+        return [f"Error fetching from Google: {e}"]
 
+# 🔹 Function to perform internet search for deeper root causes
+def search_root_causes(problem_description, target_audience):
+    """Searches the internet for deeper root causes of the problem, prioritizing authoritative sources first."""
+    query = f"root causes of {problem_description} in {target_audience}"
+    
+    # Try trusted sources first
+    results = fetch_from_google(query, num_results=5, trusted_only=True)
+    
+    # If no relevant results, fall back to a broader search
+    if not results:
+        results = fetch_from_google(query, num_results=5, trusted_only=False)
 
+    return results
 
 # 🔹 Streamlit App UI
 st.title("Advanced Innovation Generator")
@@ -117,76 +78,37 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # 🔹 Step 1: Analyze the problem
 def analyze_problem(problem_description, target_audience):
+    # Fetch root cause information from the internet
+    root_cause_info = search_root_causes(problem_description, target_audience)
+    
+    root_cause_text = "\n\n".join(root_cause_info) if root_cause_info else "No relevant sources found."
+    
+    # Combine problem description, target audience, and fetched information
     prompt = f"""
     You are an expert problem analyst. Given the following problem and audience, provide:
     1. A deeper breakdown of the root causes of the problem.
     2. A summary of similar problems in different industries.
     3. Key obstacles to solving this problem.
+    4. Relevant references from recent studies and data.
     
     Problem: {problem_description}
     Target Audience: {target_audience}
+    Additional Information: {root_cause_text}
     """
 
     response = openai.ChatCompletion.create(
         model="gpt-4-turbo",
-        messages=[{"role": "system", "content": "You are a problem analysis expert."},
-                  {"role": "user", "content": prompt}]
-    )
-
-    return response.choices[0].message['content']
-
-# 🔹 Step 2: Generate new technology-based ideas
-def generate_new_ideas(problem_description, target_audience, existing_solutions):
-    prompt = f"""
-    Generate five **unique, technology-based** solutions to the problem. Each idea should include:
-    - A product/service name
-    - A detailed description of how it works
-    - The key technology behind it
-    - Possible challenges and how to overcome them
-    - The potential market impact
-    
-    Problem: {problem_description}
-    Target Audience: {target_audience}
-    Existing Solutions: {existing_solutions}
-    """
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-turbo",
-        messages=[{"role": "system", "content": "You are an AI innovation strategist creating deep and technical solutions."},
-                  {"role": "user", "content": prompt}]
-    )
-
-    return response.choices[0].message['content']
-
-# 🔹 Step 3: Evaluate and refine the best idea
-def refine_best_idea(ideas):
-    prompt = f"""
-    Based on the following five solutions, select the one with the highest innovation, feasibility, and impact.
-    Provide a more refined version with additional technical details and a potential roadmap for development.
-    
-    Solutions: {ideas}
-    """
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-turbo",
-        messages=[{"role": "system", "content": "You are a business and tech expert refining innovation strategies."},
-                  {"role": "user", "content": prompt}]
+        messages=[
+            {"role": "system", "content": "You are a problem analysis expert."},
+            {"role": "user", "content": prompt}
+        ]
     )
 
     return response.choices[0].message['content']
 
 # 🔹 Streamlit UI Inputs
-problem_description = st.text_area(
-    "Describe the problem:",
-    placeholder="What is the problem?",
-    help="Describe the problem you want to solve."
-)
-
-target_audience = st.text_area(
-    "Who has the problem?",
-    placeholder="Who is affected by this problem?",
-    help="Describe the group or individuals who are affected by the problem."
-)
+problem_description = st.text_area("Describe the problem:", placeholder="What is the problem?")
+target_audience = st.text_area("Who has the problem?", placeholder="Who is affected?")
 
 # 🔹 Button to generate solutions
 if st.button("Generate Solutions"):
@@ -198,21 +120,14 @@ if st.button("Generate Solutions"):
             st.write(problem_analysis)
 
             with st.spinner("Retrieving real-world solutions..."):
-                google_search_results = fetch_from_google(problem_description, target_audience)
+                google_search_results = fetch_from_google(problem_description, num_results=10, trusted_only=True)
+
+            if not google_search_results:  # Fallback if no trusted sources found
+                google_search_results = fetch_from_google(problem_description, num_results=10, trusted_only=False)
 
             st.subheader("Existing Solutions & Research")
             st.write("### 🔍 Web Search Results (Google API)")
-            st.write(google_search_results)
-
-            with st.spinner("Generating new innovative ideas..."):
-                new_ideas = generate_new_ideas(problem_description, target_audience, google_search_results)
-            st.subheader("Innovative Solutions")
-            st.write(new_ideas)
-
-            with st.spinner("Refining best idea..."):
-                best_idea = refine_best_idea(new_ideas)
-            st.subheader("Refined Best Idea")
-            st.write(best_idea)
+            st.write("\n\n".join(google_search_results))
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
