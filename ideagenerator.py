@@ -3,7 +3,7 @@ import openai
 import time
 
 # Set the OpenAI API key
-openai.api_key = st.secrets["openai"]["openai_api_key"]
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Function to generate innovative solutions
 def generate_innovative_solutions(problem_description, target_audience):
