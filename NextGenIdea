@@ -32,9 +32,8 @@ def fetch_from_google(query):
 st.title("Advanced Innovation Generator")
 st.write("Generate deep, tech-driven, and broad solutions using AI-powered frameworks.")
 
-# Retrieve the OpenAI API Key from Streamlit secrets
-openai_api_key = st.secrets["general"]["OPENAI_API_KEY"]
-openai.api_key = openai_api_key
+# Set the OpenAI API key
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # 🔹 Step 1: Analyze the problem
 def analyze_problem(problem_description, target_audience):
