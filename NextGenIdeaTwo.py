@@ -51,7 +51,7 @@ def fetch_from_google(problem_description, target_audience):
         data = response.json()
         
         results = []
-        for item in data.get("items", [])[:5]:  # Get top 5 results
+        for item in data.get("items", [])[:10]:  # Get top **10** results instead of 5
             title = item.get("title", "No Title")
             link = item.get("link", "#")
             snippet = item.get("snippet", "No description available")
@@ -84,7 +84,7 @@ def fetch_from_google(problem_description, target_audience):
         data = response.json()
         
         results = []
-        for item in data.get("items", [])[:5]:  # Get top 5 results
+        for item in data.get("items", [])[:10]:  # Get top **10** results instead of 5
             title = item.get("title", "No Title")
             link = item.get("link", "#")
             snippet = item.get("snippet", "No description available")
@@ -105,73 +105,6 @@ def fetch_from_google(problem_description, target_audience):
 
     except Exception as e:
         return f"Error fetching from Google: {e}"
-
-# 🔹 Streamlit App UI
-st.title("Advanced Innovation Generator")
-st.write("Generate deep, tech-driven, and broad solutions using AI-powered frameworks.")
-
-# Set the OpenAI API key
-openai.api_key = st.secrets["OPENAI_API_KEY"]
-
-# 🔹 Step 1: Analyze the problem
-def analyze_problem(problem_description, target_audience):
-    prompt = f"""
-    You are an expert problem analyst. Given the following problem and audience, provide:
-    1. A deeper breakdown of the root causes of the problem.
-    2. A summary of similar problems in different industries.
-    3. Key obstacles to solving this problem.
-    
-    Problem: {problem_description}
-    Target Audience: {target_audience}
-    """
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-turbo",
-        messages=[{"role": "system", "content": "You are a problem analysis expert."},
-                  {"role": "user", "content": prompt}]
-    )
-
-    return response.choices[0].message['content']
-
-# 🔹 Step 2: Generate new technology-based ideas
-def generate_new_ideas(problem_description, target_audience, existing_solutions):
-    prompt = f"""
-    Generate five **unique, technology-based** solutions to the problem. Each idea should include:
-    - A product/service name
-    - A detailed description of how it works
-    - The key technology behind it
-    - Possible challenges and how to overcome them
-    - The potential market impact
-    
-    Problem: {problem_description}
-    Target Audience: {target_audience}
-    Existing Solutions: {existing_solutions}
-    """
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-turbo",
-        messages=[{"role": "system", "content": "You are an AI innovation strategist creating deep and technical solutions."},
-                  {"role": "user", "content": prompt}]
-    )
-
-    return response.choices[0].message['content']
-
-# 🔹 Step 3: Evaluate and refine the best idea
-def refine_best_idea(ideas):
-    prompt = f"""
-    Based on the following five solutions, select the one with the highest innovation, feasibility, and impact.
-    Provide a more refined version with additional technical details and a potential roadmap for development.
-    
-    Solutions: {ideas}
-    """
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-turbo",
-        messages=[{"role": "system", "content": "You are a business and tech expert refining innovation strategies."},
-                  {"role": "user", "content": prompt}]
-    )
-
-    return response.choices[0].message['content']
 
 # 🔹 Streamlit UI Inputs
 problem_description = st.text_area(
