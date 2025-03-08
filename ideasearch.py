@@ -2,6 +2,12 @@ import openai
 import requests
 import streamlit as st
 
+import streamlit as st
+import openai
+
+# ✅ Set the API key for OpenAI
+openai.api_key = openai_api_key  # This properly sets the API key for use in API calls
+
 # 🔹 Add your Google Search API credentials here
 GOOGLE_API_KEY = "AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE"  # 🔴 Replace with your actual Google API Key
 SEARCH_ENGINE_ID = "94d30f152c43a48a7"  # 🔴 Replace with your Custom Search Engine ID
@@ -28,8 +34,13 @@ def fetch_from_google(query):
     except Exception as e:
         return f"Error fetching from Google: {e}"
 
-# Set the OpenAI API key
-openai_api_key = openai_api_key
+# Retrieve API key from Streamlit secrets
+openai_api_key = st.secrets.get("OPENAI_API_KEY")
+
+# Ensure the API key is not missing
+if not openai_api_key:
+    st.error("🚨 OpenAI API key is missing! Please check Streamlit secrets.")
+    st.stop()
 
 # Function to make API calls with retry handling
 def make_api_call(prompt, system_message):
