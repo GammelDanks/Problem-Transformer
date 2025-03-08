@@ -35,7 +35,7 @@ def fetch_from_google(query):
         return f"Error fetching from Google: {e}"
 
 # Retrieve API key from Streamlit secrets
-openai_api_key = st.secrets.get("OPENAI_API_KEY")
+openai.api_key = st.secrets.get("OPENAI_API_KEY")
 
 # Ensure the API key is not missing
 if not openai_api_key:
