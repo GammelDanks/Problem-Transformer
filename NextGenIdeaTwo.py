@@ -6,11 +6,14 @@ import streamlit as st
 GOOGLE_API_KEY = "AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE"  # 🔴 Replace with your actual Google API Key
 SEARCH_ENGINE_ID = "94d30f152c43a48a7"  # 🔴 Replace with your Custom Search Engine ID
 
-# 🔹 Function to fetch search results from Google Custom Search API
-def fetch_from_google(query):
-    """Fetches search results from Google Custom Search API."""
+# 🔹 Function to fetch more relevant search results from Google Custom Search API
+def fetch_from_google(problem_description, target_audience):
+    """Fetches more specific search results from Google Custom Search API using an intelligent query."""
     
-    url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={SEARCH_ENGINE_ID}"
+    # Construct a more relevant search query
+    refined_query = f"{problem_description} AND {target_audience} -site:pinterest.com -site:quora.com after:{(datetime.datetime.now().year - 3)}"
+    
+    url = f"https://www.googleapis.com/customsearch/v1?q={refined_query}&key={GOOGLE_API_KEY}&cx={SEARCH_ENGINE_ID}"
     
     try:
         response = requests.get(url)
@@ -21,12 +24,22 @@ def fetch_from_google(query):
             title = item.get("title", "No Title")
             link = item.get("link", "#")
             snippet = item.get("snippet", "No description available")
+            
+            # Append result if it's within the last 3 years
+            if "pagemap" in item and "metatags" in item["pagemap"]:
+                meta_tags = item["pagemap"]["metatags"][0]
+                if "article:published_time" in meta_tags:
+                    article_year = int(meta_tags["article:published_time"][:4])
+                    if article_year < datetime.datetime.now().year - 3:
+                        continue  # Skip old articles
+
             results.append(f"🔗 [{title}]({link}) - {snippet}")
         
-        return "\n\n".join(results) if results else "No relevant search results found."
+        return "\n\n".join(results) if results else "No highly relevant search results found."
     
     except Exception as e:
         return f"Error fetching from Google: {e}"
+
 
 # 🔹 Streamlit App UI
 st.title("Advanced Innovation Generator")
