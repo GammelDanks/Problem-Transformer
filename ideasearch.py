@@ -5,20 +5,21 @@ import streamlit as st
 import streamlit as st
 import openai
 
- 🔍 Debugging: Check available secrets
+ Debugging: Check available secrets
 st.write("✅ Available Secrets:", list(st.secrets.keys()))  # Debugging
 
 # Retrieve API key from Streamlit secrets
 openai_api_key = st.secrets.get("OPENAI_API_KEY")
 
-# 🚨 Error Handling: Stop if the API key is missing
+# Error Handling: Stop if the API key is missing
 if not openai_api_key:
     st.error("🚨 OpenAI API key is missing! Check Streamlit secrets.")
     st.stop()
 
-# ✅ Set the API key for OpenAI
+# Set the API key for OpenAI
 openai.api_key = openai_api_key  # This properly sets the API key
 st.write("✅ OpenAI API key loaded successfully!")  # Debugging
+
 # 🔹 Add your Google Search API credentials here
 GOOGLE_API_KEY = "AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE"  # 🔴 Replace with your actual Google API Key
 SEARCH_ENGINE_ID = "94d30f152c43a48a7"  # 🔴 Replace with your Custom Search Engine ID
