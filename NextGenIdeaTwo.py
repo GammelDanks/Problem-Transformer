@@ -51,7 +51,7 @@ def fetch_from_google(problem_description, target_audience):
         data = response.json()
         
         results = []
-        for item in data.get("items", [])[:5]:  # Get top 5 results
+        for item in data.get("items", [])[:8]:  # Get top 8 results
             title = item.get("title", "No Title")
             link = item.get("link", "#")
             snippet = item.get("snippet", "No description available")
@@ -84,7 +84,7 @@ def fetch_from_google(problem_description, target_audience):
         data = response.json()
         
         results = []
-        for item in data.get("items", [])[:5]:  # Get top 5 results
+        for item in data.get("items", [])[:8]:  # Get top 8 results
             title = item.get("title", "No Title")
             link = item.get("link", "#")
             snippet = item.get("snippet", "No description available")
