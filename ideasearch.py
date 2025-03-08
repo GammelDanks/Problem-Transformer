@@ -1,16 +1,33 @@
-import openai
 import requests
-import streamlit as st
+import datetime
+import re
 
-# 🔹 Add your Google Search API credentials here
-GOOGLE_API_KEY = "AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE"  # 🔴 Replace with your actual Google API Key
+GOOGLE_API_KEY = "AIzaSyDAdbb_xnGRsbI77-ZfnlhMc-6iLDTVxiE"  # 🔴 Replace with your Google API Key
 SEARCH_ENGINE_ID = "94d30f152c43a48a7"  # 🔴 Replace with your Custom Search Engine ID
 
-# 🔹 Function to fetch search results from Google Custom Search API
-def fetch_from_google(query):
-    """Fetches search results from Google Custom Search API."""
+def extract_keywords(text):
+    """Extracts important keywords from user input using simple regex-based filtering."""
+    words = re.findall(r'\b[a-zA-Z]{4,}\b', text)  # Get words of at least 4 letters
+    keywords = " ".join(words[:5])  # Limit to first 5 meaningful words
+    return keywords
+
+def fetch_from_google(problem_description, target_audience):
+    """Fetches search results from Google Custom Search API with intelligent queries and a 3-year time filter."""
     
-    url = f"https://www.googleapis.com/customsearch/v1?q={query}&key={GOOGLE_API_KEY}&cx={SEARCH_ENGINE_ID}"
+    # Extract important keywords from both user inputs
+    problem_keywords = extract_keywords(problem_description)
+    audience_keywords = extract_keywords(target_audience)
+    
+    # Construct an intelligent search query
+    search_query = f"latest AI OR technology OR solutions for {problem_keywords} {audience_keywords}"
+    
+    # Get today's date and calculate the 3-year time range
+    today = datetime.datetime.today()
+    three_years_ago = today.year - 3
+    date_filter = f"after:{three_years_ago}-01-01"
+    
+    # API request with a time filter
+    url = f"https://www.googleapis.com/customsearch/v1?q={search_query}&dateRestrict={date_filter}&key={GOOGLE_API_KEY}&cx={SEARCH_ENGINE_ID}"
     
     try:
         response = requests.get(url)
@@ -27,115 +44,3 @@ def fetch_from_google(query):
     
     except Exception as e:
         return f"Error fetching from Google: {e}"
-
-# 🔹 Streamlit App UI
-st.title("Advanced Innovation Generator")
-st.write("Generate deep, tech-driven, and broad solutions using AI-powered frameworks.")
-
-# Retrieve the OpenAI API Key from Streamlit secrets
-openai_api_key = st.secrets["general"]["OPENAI_API_KEY"]
-openai.api_key = openai_api_key
-
-# 🔹 Step 1: Analyze the problem
-def analyze_problem(problem_description, target_audience):
-    prompt = f"""
-    You are an expert problem analyst. Given the following problem and audience, provide:
-    1. A deeper breakdown of the root causes of the problem.
-    2. A summary of similar problems in different industries.
-    3. Key obstacles to solving this problem.
-    
-    Problem: {problem_description}
-    Target Audience: {target_audience}
-    """
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-turbo",
-        messages=[{"role": "system", "content": "You are a problem analysis expert."},
-                  {"role": "user", "content": prompt}]
-    )
-
-    return response.choices[0].message['content']
-
-# 🔹 Step 2: Generate new technology-based ideas
-def generate_new_ideas(problem_description, target_audience, existing_solutions):
-    prompt = f"""
-    Generate five **unique, technology-based** solutions to the problem. Each idea should include:
-    - A product/service name
-    - A detailed description of how it works
-    - The key technology behind it
-    - Possible challenges and how to overcome them
-    - The potential market impact
-    
-    Problem: {problem_description}
-    Target Audience: {target_audience}
-    Existing Solutions: {existing_solutions}
-    """
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-turbo",
-        messages=[{"role": "system", "content": "You are an AI innovation strategist creating deep and technical solutions."},
-                  {"role": "user", "content": prompt}]
-    )
-
-    return response.choices[0].message['content']
-
-# 🔹 Step 3: Evaluate and refine the best idea
-def refine_best_idea(ideas):
-    prompt = f"""
-    Based on the following five solutions, select the one with the highest innovation, feasibility, and impact.
-    Provide a more refined version with additional technical details and a potential roadmap for development.
-    
-    Solutions: {ideas}
-    """
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-turbo",
-        messages=[{"role": "system", "content": "You are a business and tech expert refining innovation strategies."},
-                  {"role": "user", "content": prompt}]
-    )
-
-    return response.choices[0].message['content']
-
-# 🔹 Streamlit UI Inputs
-problem_description = st.text_area(
-    "Describe the problem:",
-    placeholder="What is the problem?",
-    help="Describe the problem you want to solve."
-)
-
-target_audience = st.text_area(
-    "Who has the problem?",
-    placeholder="Who is affected by this problem?",
-    help="Describe the group or individuals who are affected by the problem."
-)
-
-# 🔹 Button to generate solutions
-if st.button("Generate Solutions"):
-    if problem_description and target_audience:
-        try:
-            with st.spinner("Analyzing problem..."):
-                problem_analysis = analyze_problem(problem_description, target_audience)
-            st.subheader("Problem Analysis")
-            st.write(problem_analysis)
-
-            with st.spinner("Retrieving real-world solutions..."):
-                google_search_results = fetch_from_google(problem_description)
-
-            st.subheader("Existing Solutions & Research")
-            st.write("### 🔍 Web Search Results (Google API)")
-            st.write(google_search_results)
-
-            with st.spinner("Generating new innovative ideas..."):
-                new_ideas = generate_new_ideas(problem_description, target_audience, google_search_results)
-            st.subheader("Innovative Solutions")
-            st.write(new_ideas)
-
-            with st.spinner("Refining best idea..."):
-                best_idea = refine_best_idea(new_ideas)
-            st.subheader("Refined Best Idea")
-            st.write(best_idea)
-
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
-    else:
-        st.warning("Please enter both the problem description and target audience to generate solutions.")
