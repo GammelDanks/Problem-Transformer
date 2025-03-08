@@ -29,7 +29,7 @@ def fetch_from_google(query):
         return f"Error fetching from Google: {e}"
 
 # Set the OpenAI API key
-openai.api_key = openai_api_key
+openai_api_key = openai_api_key
 
 # Function to make API calls with retry handling
 def make_api_call(prompt, system_message):
